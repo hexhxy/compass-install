@@ -1,7 +1,7 @@
 ---
 - name: install packages
   yum: name={{ item }} state=present
-  with_items: compass_packages
+  with_items: "{{ compass_packages }}"
   tags:
     - elk
 
@@ -86,20 +86,20 @@
 # - name: append compass group to apache user groups
 #  user: name=apache groups=root append=yes
 
-- name: start elasticsearch
-  service: name=elasticsearch state=started enabled=yes
-  tags:
-    - elk
-
-- name: start logstash
-  service: name=logstash state=started enabled=yes
-  tags:
-    - elk
-
-- name: start kibana
-  service: name=kibana state=started enabled=yes
-  tags:
-    - elk
+#- name: start elasticsearch
+#  service: name=elasticsearch state=started enabled=yes
+#  tags:
+#    - elk
+#
+#- name: start logstash
+#  service: name=logstash state=started enabled=yes
+#  tags:
+#    - elk
+#
+#- name: start kibana
+#  service: name=kibana state=started enabled=yes
+#  tags:
+#    - elk
 
 - name: start mysqld
   service: name=mysqld state=started enabled=yes

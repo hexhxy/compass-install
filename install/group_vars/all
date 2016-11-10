@@ -167,6 +167,12 @@ distros:
     aliase: "centos7"
     version: "centos"
 
+  rhel-server-7:
+    breed: "redhat"
+    kickstart: "redhat.ks"
+    aliase: "redhat7"
+    version: "redhat"
+
 compass_packages:
   - redis
   - mysql

@@ -1,7 +1,7 @@
 ---
 - name: install packages
   yum: name={{ item }} state=present
-  with_items: cobbler_packages
+  with_items: "{{ cobbler_packages }}"
 
 - name: turn off iptables
   service: name=firewalld state=stopped enabled=no
@@ -102,7 +102,7 @@
 - name: untar cobbler ppa repo
   #unarchive: src={{ item }} dest=/var/lib/cobbler/repo_mirror/ copy=no
   shell : tar -zxf {{ item }} -C /var/lib/cobbler/repo_mirror
-  with_items: ppa_files.stdout_lines
+  with_items: "{{ ppa_files.stdout_lines }}"
 
 - name: get all ppa dir
   shell: ls /var/lib/cobbler/repo_mirror/
@@ -137,7 +137,7 @@
                        --kickstart=/var/lib/cobbler/kickstarts/{{ item.value.kickstart }} \
                        --breed={{ item.value.breed }}
     done
-  with_dict: distros
+  with_dict: "{{ distros }}"
   ignore_errors: yes
   run_once: True
 
@@ -147,7 +147,7 @@
 
 - name: remove default repo
   command: cobbler repo remove --name {{ item }}
-  with_items: default_repos.stdout_lines
+  with_items: "{{ default_repos.stdout_lines }}"
 
 - name: add repos
   shell: |
@@ -156,7 +156,7 @@
         cobbler repo add --name $filename --mirror=/var/lib/cobbler/repo_mirror/$filename \
                          --mirror-locally=Y --arch=x86_64 {{ item.value.extra | default()}}
     done
-  with_dict: distros
+  with_dict: "{{ distros }}"
   args:
     creates: /opt/repo_added.txt
   ignore_errors: yes
@@ -197,7 +197,7 @@
             --kopts="{{ item.value.kopts | default("") }}" \
             --kopts-post="{{ item.value.kopts_post | default("") }}"
     done
-  with_dict: distros
+  with_dict: "{{ distros }}"
   args:
     creates: /opt/add_profile.txt
 
@@ -224,5 +224,5 @@
 
 - name: remove all systems
   shell: cobbler system remove --name {{ item }}
-  with_items: cobbler_systems.stdout_lines
-  when: cobbler_systems and test is defined and test == True
+  with_items: "{{ cobbler_systems.stdout_lines }}"
+  when: cobbler_systems  and test is defined and test == True
