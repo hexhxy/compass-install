@@ -22,6 +22,9 @@ shared_dir: "~/compass/shared"
 # pkg installer
 pkg_installer: "ansible"
 
+## compass vm timezone ##
+timezone: Asia/Shanghai
+
 ## default urls
 
 # centos
@@ -152,7 +155,7 @@ distros:
     aliase: "trusty"
     version: "ubuntu"
 
-  ubuntu-16.04.1:
+  ubuntu-16.04:
     breed: "ubuntu"
     kickstart: "default16.seed"
     kopts: "netcfg/choose_interface=auto console='ttyS0,115200n8' console=tty0 net.ifnames=0 biosdevname=0 vga=788"

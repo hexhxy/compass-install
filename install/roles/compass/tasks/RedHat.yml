@@ -64,11 +64,30 @@
   tags:
     - elk
 
+- name: install ntp
+  yum: name=ntp state=installed
+  tags: ntp
+
+- name: copy ntp config
+  file: src=ntp.conf dest=/etc/ntp.conf
+  notify:
+    - restart ntp service
+  tags: ntp
+
+- name: make sure ntp is started up
+  service: name=ntpd state=started enabled=yes
+  tags: ntp
+
+- name: set compass vm timezone
+  shell: timedatectl set-timezone {{ timezone }}
+  tags: ntp
+
 - name: copy httpd config
   copy: src={{ item }} dest=/etc/httpd/conf.d/{{ item }}
   with_items:
     - ods-server.conf
     - http_pip.conf
+    - http_pip-openstack.conf
     - images.conf
     - packages.conf
     - elk.conf
@@ -122,7 +141,7 @@
     cd -
 
 - name: install pip
-  shell: easy_install `ls /var/www/pip/pip-*.tar.gz`
+  shell: easy_install `ls /var/www/pip/pip-*`
 
 - name: create pip config directory
   file: path=~/.pip state=directory
@@ -164,7 +183,11 @@
         cp -rf /opt/compass-adapters/ansible/openstack/* /var/ansible/$i
         cp -rf /opt/compass-adapters/ansible/$i /var/ansible/
     done
+    if [ -d /opt/compass-adapters/ansible/kubernetes ]; then
+        cp -rf /opt/compass-adapters/ansible/kubernetes /var/ansible/
+    fi
   when: "'ansible' in '{{ pkg_installer }}'"
+  ignore_errors: yes
 
 - name: copy ansible roles into ansible folder
   shell: cp -rf /opt/compass-adapters/ansible/roles /var/ansible/
