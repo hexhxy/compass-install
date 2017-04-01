@@ -1,0 +1,53 @@
+---
+- name: install avahi
+  yum: name=avahi state=present
+
+- name: config avahi
+  template:
+    src: compass_discovery.service.j2
+    dest: /etc/avahi/services/compass_discovery.service
+
+- name: restart avahi service
+  service: name=avahi-daemon state=restarted enabled=yes
+
+- name: add tinycore signature
+  template:
+    src: distro_signatures.json.j2
+    dest: /var/lib/cobbler/distro_signatures.json
+
+- name: restart cobblerd service
+  service: name=cobblerd state=restarted enabled=yes
+
+- name: config dhcp
+  template:
+    src: dhcp.template.j2
+    dest: /etc/cobbler/dhcp.template
+
+- name: copy tinycore
+  copy:
+    src: core.iso
+    dest: /home/core.iso
+
+- name: import tinycore distros
+  shell: >
+    mkdir -p /home/tinycore;
+    mount -o loop /home/core.iso /home/tinycore;
+    cobbler import --name={{ tinycore.DistroName }} \
+                   --arch={{ tinycore.DistroArch }} \
+                   --path=/home/tinycore;
+    umount /home/tinycore;
+    rm -rf /home/tinycore;
+
+- name: edit tinycore profile
+  shell: >
+    cobbler profile edit \
+    --name={{ tinycore.DistroName }}-{{ tinycore.DistroArch }} \
+    --enable-menu=True --kopts="owner_id={{ cluster_id }}"
+
+- name: add default system
+  shell: >
+    cobbler system add --name=default \
+    --profile={{ tinycore.DistroName }}-{{ tinycore.DistroArch }}
+
+- name: cobbler sync
+  shell: cobbler sync

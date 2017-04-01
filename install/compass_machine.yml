@@ -2,6 +2,6 @@
 - hosts: compass_nodocker
   sudo: True
   roles:
-    - machines
+    - discovery
   vars:
     - dockerized: False
